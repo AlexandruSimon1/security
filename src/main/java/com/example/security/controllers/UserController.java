@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class UserController {
@@ -20,24 +21,33 @@ public class UserController {
         this.sendEmailService = sendEmailService;
     }
 
-    @PostMapping("/user")
+    @PostMapping("/forgotPassword/{username}")
+    public String forgotPassword(@RequestParam User user,@PathVariable String username){
+        return userService.existingUser(user.getActivationCode());
+    }
+
+//    @PatchMapping("/user/password/{activationCode}")
+//    public String updatePassword(@RequestBody User user,@PathVariable String activationCode){
+//        return userService.
+//    }
+
+    @PostMapping("/user/register")
     public User saveUser(@RequestBody User user) throws Exception {
         return userService.createUser(user);
     }
 
-    @GetMapping("/user/activation/{username}")
-    public String activateUser(@RequestBody User user) {
-        user.setEnabled(true);
-        return "User was activated";
+    @GetMapping("/activation/{activationCode}")
+    public String activateUser(@PathVariable String activationCode) {
+        return userService.activatedUser(UUID.fromString(activationCode));
     }
 
     @PutMapping("/user/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User user){
+    public User updateUser(@PathVariable Long id, @RequestBody User user) {
         return userService.updateUser(id, user);
     }
 
     @GetMapping("/admin/users")
-    public List<User> findAll(){
+    public List<User> findAll() {
         return userService.findAllUsers();
     }
 
@@ -47,12 +57,12 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
-    public String deleteById(@PathVariable("id") Long id){
-       return userService.deleteById(id);
+    public String deleteById(@PathVariable("id") Long id) {
+        return userService.deleteById(id);
     }
 
     @GetMapping("/user/{id}")
-    public UserDTO findByIdUser(@PathVariable Long id){
+    public UserDTO findByIdUser(@PathVariable Long id) {
         return userService.findByIdUser(id);
     }
 

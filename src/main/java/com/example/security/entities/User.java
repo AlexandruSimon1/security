@@ -1,104 +1,113 @@
 package com.example.security.entities;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
 @Entity()
-@Table(name="user")
+@Table(name = "user")
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
 
-	@Column (unique = true, nullable = false)
+    @Column
+    @org.hibernate.annotations.Type(type="org.hibernate.type.UUIDCharType")
+    UUID activationCode;
+
+    @Column(unique = true, nullable = false)
     String username;
 
-	@Column (nullable = false)
+    @Column(nullable = false)
     String password;
 
-	@Column
+    @Column
     Boolean enabled = false;
 
-	@OneToMany(mappedBy = "user", cascade=ALL, fetch=EAGER)
-	Set<UserAuthority> userAuthorities = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = ALL, fetch = EAGER)
+    Set<UserAuthority> userAuthorities = new HashSet<>();
 
-	@OneToOne(cascade = ALL)
-	@JoinColumn(name = "user_personal_info_id")
-	private UserPersonalInfo userPersonalInfo;
+    @OneToOne(cascade = ALL)
+    @JoinColumn(name = "user_personal_info_id")
+    private UserPersonalInfo userPersonalInfo;
 
-	public UserPersonalInfo getUserPersonalInfo() {
-		return userPersonalInfo;
-	}
+    public UserPersonalInfo getUserPersonalInfo() {
+        return userPersonalInfo;
+    }
 
-	public void setUserPersonalInfo(UserPersonalInfo userPersonalInfo) {
-		this.userPersonalInfo = userPersonalInfo;
-	}
+    public void setUserPersonalInfo(UserPersonalInfo userPersonalInfo) {
+        this.userPersonalInfo = userPersonalInfo;
+    }
 
-	public User() {}
+    public User() {
+    }
 
-	public User(Long id, String username, String password) {
-		this.id = id;
-		this.username = username;
-		this.password = password;
-	}
+    public User(Long id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
 
-	public User(User user) {
-		this.id = user.id;
-		this.username = user.username;
-		this.password = user.password;
-		this.enabled = user.enabled;
-		this.userAuthorities = new HashSet<>(user.getUserAuthorities());
-	}
+    public User(User user) {
+        this.id = user.id;
+        this.username = user.username;
+        this.password = user.password;
+        this.enabled = user.enabled;
+        this.userAuthorities = new HashSet<>(user.getUserAuthorities());
+    }
 
 
+    public UUID getActivationCode() {
+        return activationCode;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setActivationCode(UUID activationCode) {
+        this.activationCode = activationCode;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public Boolean getEnabled() {
-		return enabled;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
-	}
+    public Boolean getEnabled() {
+        return enabled;
+    }
 
-	public Set<UserAuthority> getUserAuthorities() {
-		return userAuthorities;
-	}
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public void setUserAuthorities(Set<UserAuthority> userAuthorities) {
-		this.userAuthorities = userAuthorities;
-	}
+    public Set<UserAuthority> getUserAuthorities() {
+        return userAuthorities;
+    }
 
-	public void addAuthority(String authority) {
-		this.userAuthorities.add(new UserAuthority(this, authority));
-	}
+    public void setUserAuthorities(Set<UserAuthority> userAuthorities) {
+        this.userAuthorities = userAuthorities;
+    }
+
+    public void addAuthority(String authority) {
+        this.userAuthorities.add(new UserAuthority(this, authority));
+    }
 }

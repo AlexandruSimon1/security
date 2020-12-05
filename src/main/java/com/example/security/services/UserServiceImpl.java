@@ -20,6 +20,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -43,14 +44,54 @@ public class UserServiceImpl implements UserService {
         mailModel.setSubject("Activation Email");
         HashMap<String, String> content = new HashMap<>();
         content.put("username", user.getUsername());
+        content.put("activationCode", user.getActivationCode().toString());
+        content.put("firstName", user.getUserPersonalInfo().getFirstName());
+        content.put("lastName", user.getUserPersonalInfo().getLastName());
         mailModel.setContent(content);
         return mailModel;
+    }
+    private MailModel createMailModelForForgotPassword(User user){
+        MailModel mailModel = new MailModel();
+        mailModel.setTo(user.getUserPersonalInfo().getEmail());
+        mailModel.setTemplate(EmailTemplate.FORGOTPASSWORD);
+        mailModel.setSubject("Forgot Password");
+        HashMap<String,String> content= new HashMap<>();
+        content.put("activationCode",user.getActivationCode().toString());
+        content.put("username",user.getUsername());
+        mailModel.setContent(content);
+        return mailModel;
+    }
+
+    public String existingUser(UUID activationCode) {
+        User user = userRepository.findByActivationCode(activationCode);
+        if (user != null) {
+            return "User exist email for changing password sent";
+        }
+        return "User doesn't exist";
+    }
+
+//    private User newPassword(User user){
+//        String password = this.passwordEncoder.encode(user.getPassword());
+//        user.setPassword(password);
+//    }
+
+    public String activatedUser(UUID activationCode) {
+        User user = userRepository.findByActivationCode(activationCode);
+        if (user != null) {
+            if (user.getEnabled()) {
+                return "This username has already been activated!";
+            } else {
+                return "Hello " + user.getUsername() + ", your account has been activated";
+            }
+        }
+        return "Invalid activationCode";
     }
 
     @Override
     public User createUser(User user) throws MessagingException, IOException, TemplateException {
         String password = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(password);
+        user.setActivationCode(UUID.randomUUID());
         User userSaved = userRepository.save(user);
         MailModel mailModel = createMailModelForCreatedUser(user);
         sendEmailService.send(mailModel);
