@@ -1,5 +1,7 @@
 package com.example.security.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 import static javax.persistence.CascadeType.ALL;
@@ -18,6 +20,7 @@ public class UserPersonalInfo {
 
 
     @OneToOne(mappedBy = "userPersonalInfo", cascade = ALL , fetch = EAGER)
+    @JsonIgnore
     private User user;
 
     public UserPersonalInfo() {

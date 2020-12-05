@@ -60,6 +60,7 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 		userPersonalInfo.setLastName("carol");
 		userPersonalInfo.setPhoneNumber("07888888888");
 		carol.setUserPersonalInfo(userPersonalInfo);
+		carol.setEnabled(true);
 
 
 		this.save(josh);

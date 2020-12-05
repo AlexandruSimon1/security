@@ -23,7 +23,7 @@ public class User {
     String password;
 
 	@Column
-    Boolean enabled = true;
+    Boolean enabled = false;
 
 	@OneToMany(mappedBy = "user", cascade=ALL, fetch=EAGER)
 	Set<UserAuthority> userAuthorities = new HashSet<>();

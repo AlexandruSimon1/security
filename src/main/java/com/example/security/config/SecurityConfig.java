@@ -22,6 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				a.mvcMatchers(POST, "/user").hasAuthority("WRITE");
 				a.mvcMatchers(GET, "/admin/user/**", "/admin/users").hasAuthority("ADMIN");
 				a.mvcMatchers(GET, "/user/**", "/users").hasAuthority("WRITE");
+				a.mvcMatchers(GET,"/user/activation/**").permitAll();
 				a.anyRequest().hasAuthority("WRITE");
 			})
 			.httpBasic();
