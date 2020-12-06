@@ -2,7 +2,6 @@ package com.example.security.services;
 
 import com.example.security.dto.UserDTO;
 import com.example.security.entities.User;
-import com.example.security.entities.UserAuthority;
 import com.example.security.model.MailModel;
 import com.example.security.repositories.UserPersonalInfoRepository;
 import com.example.security.repositories.UserRepository;
@@ -14,12 +13,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -50,30 +51,49 @@ public class UserServiceImpl implements UserService {
         mailModel.setContent(content);
         return mailModel;
     }
-    private MailModel createMailModelForForgotPassword(User user){
+
+    private MailModel createMailModelForForgotPassword(User user) {
         MailModel mailModel = new MailModel();
         mailModel.setTo(user.getUserPersonalInfo().getEmail());
         mailModel.setTemplate(EmailTemplate.FORGOTPASSWORD);
         mailModel.setSubject("Forgot Password");
-        HashMap<String,String> content= new HashMap<>();
-        content.put("activationCode",user.getActivationCode().toString());
-        content.put("username",user.getUsername());
+        HashMap<String, String> content = new HashMap<>();
+        content.put("forgotPassword", user.getForgotPassword().toString());
+        content.put("username", user.getUsername());
         mailModel.setContent(content);
         return mailModel;
     }
 
-    public String existingUser(UUID activationCode) {
-        User user = userRepository.findByActivationCode(activationCode);
-        if (user != null) {
-            return "User exist email for changing password sent";
+    @Override
+    public String forgotPassword(String username) throws MessagingException, IOException, TemplateException {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            user.get().setForgotPassword(UUID.randomUUID());
+            userRepository.save(user.get());
+            MailModel mailModel = createMailModelForForgotPassword(user.get());
+            sendEmailService.send(mailModel);
+            return "Created forgot password UUID for verification email has been sent";
         }
         return "User doesn't exist";
     }
 
-//    private User newPassword(User user){
-//        String password = this.passwordEncoder.encode(user.getPassword());
-//        user.setPassword(password);
-//    }
+    public String checkUserByForgotPassword(UUID forgotPassword, Model model) {
+        User user = userRepository.findByForgotPassword(forgotPassword);
+        if (user != null) {
+            model.addAttribute("user", user);
+            return "resetPassword.ftl.html";
+        }
+        return "User doesn't exist";
+    }
+
+
+
+    public User newPassword(User user) {
+        String password = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(password);
+        userRepository.save(user);
+        return user;
+    }
 
     public String activatedUser(UUID activationCode) {
         User user = userRepository.findByActivationCode(activationCode);

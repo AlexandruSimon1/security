@@ -4,31 +4,27 @@ import com.example.security.dto.UserDTO;
 import com.example.security.entities.User;
 import com.example.security.services.SendEmailService;
 import com.example.security.services.UserService;
+import freemarker.template.TemplateException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 public class UserController {
     private final UserService userService;
-    private final SendEmailService sendEmailService;
 
-    public UserController(UserService userService, SendEmailService sendEmailService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.sendEmailService = sendEmailService;
     }
 
     @PostMapping("/forgotPassword/{username}")
-    public String forgotPassword(@RequestParam User user,@PathVariable String username){
-        return userService.existingUser(user.getActivationCode());
+    public String forgotPassword(@PathVariable String username) throws MessagingException, IOException, TemplateException {
+        return userService.forgotPassword(username);
     }
-
-//    @PatchMapping("/user/password/{activationCode}")
-//    public String updatePassword(@RequestBody User user,@PathVariable String activationCode){
-//        return userService.
-//    }
 
     @PostMapping("/user/register")
     public User saveUser(@RequestBody User user) throws Exception {
