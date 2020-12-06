@@ -2,7 +2,6 @@ package com.example.security.controllers;
 
 import com.example.security.dto.UserDTO;
 import com.example.security.entities.User;
-import com.example.security.model.MailModel;
 import com.example.security.services.SendEmailService;
 import com.example.security.services.UserService;
 import org.springframework.security.core.Authentication;

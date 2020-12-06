@@ -17,6 +17,10 @@ public class User {
     @org.hibernate.annotations.Type(type="org.hibernate.type.UUIDCharType")
     UUID activationCode;
 
+    @Column
+    @org.hibernate.annotations.Type(type="org.hibernate.type.UUIDCharType")
+    UUID forgotPassword;
+
     @Column(unique = true, nullable = false)
     String username;
 
@@ -58,6 +62,13 @@ public class User {
         this.userAuthorities = new HashSet<>(user.getUserAuthorities());
     }
 
+    public UUID getForgotPassword() {
+        return forgotPassword;
+    }
+
+    public void setForgotPassword(UUID forgotPassword) {
+        this.forgotPassword = forgotPassword;
+    }
 
     public UUID getActivationCode() {
         return activationCode;
